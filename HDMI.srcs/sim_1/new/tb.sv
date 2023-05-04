@@ -22,9 +22,31 @@
 
 module tb;
 
-logic clk, rst;
+logic clk;
+logic rst;
 
-clock_divider #(.div(9)) uut (.clk(clk), .rst(rst), .slow_clk(slow_clk));
+logic scl;
+tri1 sda;
+logic busy;
+
+logic rw;
+logic [7:0] data_address;
+logic [7:0] wdata;
+logic wvalid;
+
+iic_avd7511_master #(.clk_div(20)) iic_master (
+    .clk(clk),
+    .rst(rst),
+    .scl(scl),
+    .sda(sda),
+    .rw(rw),
+    .data_address(data_address),
+    .wdata(wdata),
+    .wvalid(wvalid),
+    .rdata(),
+    .rvalid(),
+    .busy(busy)
+    );
 
 initial begin
     clk = 0;
@@ -33,7 +55,27 @@ end
 
 initial begin
     rst = 1;
-    #7 rst = 0;
+    repeat(2) @(posedge clk);
+    rst = 0;
+    repeat(2) @(posedge clk);
+    
+    // 0xa5 = 0x99
+    rw = 0;
+    data_address = 'ha5;
+    wdata = 'h99;
+    wvalid = 1;
+    @(posedge clk);
+    wvalid = 0;
+    
+    // ack
+    repeat(9) @(posedge scl);
+    force sda = 0;
+    @(posedge scl);
+    release sda;
+    
+    @(negedge busy);
+    repeat(2) @(posedge scl);
+    $finish;
 end
 
 endmodule

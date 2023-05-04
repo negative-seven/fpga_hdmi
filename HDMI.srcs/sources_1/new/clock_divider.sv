@@ -24,7 +24,10 @@ module clock_divider #(parameter div=2) (
     input clk,
     input rst,
     output logic slow_clk,
-    output logic enable
+    output logic impulse_p,
+    output logic impulse_n,
+    output logic impulse_0,
+    output logic impulse_1
     );
 
 localparam divlen = $clog2(div);
@@ -46,9 +49,17 @@ always @(posedge clk, posedge rst)
         slow_clk <= (counter >= div / 2);
 
 always @(posedge clk, posedge rst)
-    if (rst)
-        enable <= 0;
-    else
-        enable <= (counter == 0);
+    if (rst) begin
+        impulse_p <= 0;
+        impulse_n <= 0;
+        impulse_0 <= 0;
+        impulse_1 <= 0;
+    end
+    else begin
+        impulse_p <= (counter == div / 2);
+        impulse_n <= (counter == 0);
+        impulse_0 <= (counter == div / 4);
+        impulse_1 <= (counter == div * 3 / 4);
+    end    
 
 endmodule
