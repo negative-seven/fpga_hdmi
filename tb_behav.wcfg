@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="5409180fs"></ZoomStartTime>
+      <ZoomEndTime time="6597181fs"></ZoomEndTime>
+      <Cursor1Time time="7000000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="211"></NameColumnWidth>
+      <ValueColumnWidth column_width="94"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="16" />
+   <wvobject type="logic" fp_name="/tb/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/rst">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/scl">
+      <obj_property name="ElementShortName">scl</obj_property>
+      <obj_property name="ObjectShortName">scl</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/sda">
+      <obj_property name="ElementShortName">sda</obj_property>
+      <obj_property name="ObjectShortName">sda</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/iic_master/sda_z">
+      <obj_property name="ElementShortName">sda_z</obj_property>
+      <obj_property name="ObjectShortName">sda_z</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/busy">
+      <obj_property name="ElementShortName">busy</obj_property>
+      <obj_property name="ObjectShortName">busy</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/rw">
+      <obj_property name="ElementShortName">rw</obj_property>
+      <obj_property name="ObjectShortName">rw</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/data_address">
+      <obj_property name="ElementShortName">data_address[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_address[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/wdata">
+      <obj_property name="ElementShortName">wdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/wvalid">
+      <obj_property name="ElementShortName">wvalid</obj_property>
+      <obj_property name="ObjectShortName">wvalid</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/iic_master/state">
+      <obj_property name="ElementShortName">state[31:0]</obj_property>
+      <obj_property name="ObjectShortName">state[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/iic_master/scl_0">
+      <obj_property name="ElementShortName">scl_0</obj_property>
+      <obj_property name="ObjectShortName">scl_0</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/iic_master/shift_counter">
+      <obj_property name="ElementShortName">shift_counter[2:0]</obj_property>
+      <obj_property name="ObjectShortName">shift_counter[2:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/iic_master/shift_data_counter">
+      <obj_property name="ElementShortName">shift_data_counter[2:0]</obj_property>
+      <obj_property name="ObjectShortName">shift_data_counter[2:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/iic_master/latched_data_address">
+      <obj_property name="ElementShortName">latched_data_address[7:0]</obj_property>
+      <obj_property name="ObjectShortName">latched_data_address[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/iic_master/latched_wvalid">
+      <obj_property name="ElementShortName">latched_wvalid</obj_property>
+      <obj_property name="ObjectShortName">latched_wvalid</obj_property>
+   </wvobject>
+</wave_config>

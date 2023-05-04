@@ -59,23 +59,39 @@ initial begin
     rst = 0;
     repeat(2) @(posedge clk);
     
-    // 0xa5 = 0x99
+    write('b10100101, 'b10011001);
+    write('b00110011, 'b01100001);
+    
+    repeat(50) @(posedge clk);
+    $finish;
+end
+
+task write(address, data);
+    // begin write: 0xa5 = 0x99
     rw = 0;
-    data_address = 'ha5;
-    wdata = 'h99;
+    data_address = address;
+    wdata = data;
     wvalid = 1;
     @(posedge clk);
     wvalid = 0;
     
-    // ack
+    // receive address
     repeat(9) @(posedge scl);
+    
+    // address ack
     force sda = 0;
-    @(posedge scl);
+    @(negedge scl);
+    release sda;
+    
+    // receive data and address
+    repeat(17) @(posedge scl);
+    
+    // data ack
+    force sda = 0;
+    @(negedge scl);
     release sda;
     
     @(negedge busy);
-    repeat(2) @(posedge scl);
-    $finish;
-end
+endtask
 
 endmodule
