@@ -31,14 +31,17 @@ module iic_avd7511_master #(parameter clk_div=1000) (
     input wvalid,
     output logic [7:0] rdata,
     output rvalid,
-    output logic busy
+    output busy
     );
 
-typedef enum {Idle, SendStart, SendSlaveAddress, SendRW, ReceiveAddressAck, SendDataAddress, SendData, ReceiveData, ReceiveDataAck, SendStop} states;
+typedef enum {Idle, SendStart, NULL, SendStop,
+            SendSlaveAddress, SendRW, ReceiveSlaveAddressAck,
+            SendDataAddress, ReceiveDataAddressAck,
+            SendData, ReceiveDataAck,
+            ReceiveData, SendDataNack} states;
 
 states state;
 states next_state;
-logic scl_0_delayed;
 logic sda_z; // 1 = sda output is high impedance
 logic sda_out; // signal outputted to sda if not in high impedance state
 logic scl_high; // 1 = scl is held high, 0 = scl signal is assigned from slow clock
@@ -49,25 +52,23 @@ logic [7:0] latched_wdata;
 logic latched_wvalid;
 logic latched_ack;
 logic [2:0] shift_counter;
-logic [2:0] shift_data_counter;
-logic data_address_sent;
+logic data_address_sent = 0;
 
-clock_divider #(.div(clk_div)) divider (.clk(clk), .rst(rst), .slow_clk(slow_clk), .impulse_0(scl_0), .impulse_1(scl_1));
+clock_divider #(.div(clk_div)) divider (.clk(clk), .rst(rst), .slow_clk(slow_clk), .impulse_0(scl_0), .impulse_1(scl_1), .impulse_n(scl_n));
 
 assign sda = sda_z ? 'z : sda_out;
 assign scl = scl_high ? 1 : slow_clk;
+
+assign busy = state != Idle || latched_wvalid;
 
 always @(posedge clk, posedge rst)
     if (rst) begin
         state <= Idle;
         scl_high <= 1;
-        busy <= 0;
     end
-    else if (scl_0)
+    else if (scl_n)
         state <= next_state;
-        
-always @(posedge clk)
-    scl_0_delayed <= scl_0;
+
 
 always @(posedge clk) begin
     if (wvalid) begin
@@ -80,7 +81,6 @@ always @(posedge clk) begin
 end
 
 wire shift_completed = (shift_counter == 0);
-wire shift_data_completed = (shift_data_counter == 0);
 
 always @* begin
     next_state = Idle;
@@ -88,20 +88,26 @@ always @* begin
         Idle: if (latched_wvalid) next_state = SendStart;
         SendStart: next_state = SendSlaveAddress;
         SendSlaveAddress: next_state = shift_completed ? SendRW : SendSlaveAddress;
-        SendRW: next_state = ReceiveAddressAck;
-        ReceiveAddressAck: 
+        SendRW: next_state = ReceiveSlaveAddressAck;
+        ReceiveSlaveAddressAck: 
             if (!latched_ack) // ack
                 next_state = data_address_sent ? ReceiveData : SendDataAddress;
             else // nack
                 next_state = SendStop;
         SendDataAddress:
             if (shift_completed)
-                next_state = latched_rw ? SendStart : SendData;
+                next_state = ReceiveDataAddressAck;
             else
                 next_state = SendDataAddress;
-        SendData: next_state = shift_data_completed ? ReceiveDataAck : SendData;
-        ReceiveData: next_state = shift_data_completed ? ReceiveDataAck : ReceiveData;
+        ReceiveDataAddressAck:
+            if (!latched_ack)
+                next_state = latched_rw ? SendStart : SendData;
+            else
+                next_state = SendStop;
+        SendData: next_state = shift_completed ? ReceiveDataAck : SendData;
         ReceiveDataAck: next_state = SendStop;
+        ReceiveData: next_state = shift_completed ? SendDataNack : ReceiveData;
+        SendDataNack: next_state = SendStop;
         SendStop: next_state = Idle;
     endcase
 end
@@ -109,54 +115,74 @@ end
 always @(posedge clk) begin
     if (scl_0) begin
         case (state)
-            Idle: sda_z <= 1;
+            Idle: begin
+                sda_z <= 1;
+                shift_counter <= 0;
+                latched_ack <= 1;
+            end
             SendStart: begin
                 latched_wvalid <= 0;
                 sda_z <= 0;
                 sda_out <= 0;
-                shift_counter <= 6;
             end
             SendSlaveAddress: begin
                 {sda_out, latched_slave_address[7:2]} <= latched_slave_address;
-                shift_counter <= shift_counter - 1;
+                if (shift_completed)
+                    shift_counter <= 6;
+                else
+                    shift_counter <= shift_counter - 1;
             end
             SendRW: sda_out <= latched_rw;
-            ReceiveAddressAck: begin
+            ReceiveSlaveAddressAck: begin
                 sda_z <= 1;
-                shift_counter <= 7;
             end
             SendDataAddress: begin
                 sda_z <= 0;
                 {sda_out, latched_data_address[7:1]} <= latched_data_address;
-                shift_counter <= shift_counter - 1;
-                shift_data_counter <= 7;
+                if (shift_completed)
+                    shift_counter <= 7;
+                else
+                    shift_counter <= shift_counter - 1;
+            end
+            ReceiveDataAddressAck: begin
+                sda_z <= 1;
             end
             SendData: begin
+                sda_z <= 0;
                 {sda_out, latched_wdata[7:1]} <= latched_wdata;
-                shift_data_counter <= shift_data_counter - 1;
-            end
-            ReceiveData: begin
-                rdata <= {rdata[7:1], sda};
-                shift_data_counter <= shift_data_counter - 1;
+                if (shift_completed)
+                    shift_counter <= 7;
+                else
+                    shift_counter <= shift_counter - 1;
             end
             ReceiveDataAck: begin
                 sda_z <= 1;
+            end
+            ReceiveData: begin
+                sda_z <= 1;
+                rdata <= {rdata[7:1], sda};
+                shift_counter <= shift_counter - 1;
+            end
+            SendDataNack: begin
+                sda_z <= 0;
+                sda_out <= 1;
             end
             SendStop: begin
                 sda_z <= 0;
                 sda_out <= 0;
             end
         endcase
-        
-        busy <= (state != Idle);
     end 
 end
 
 always @(posedge clk)
     if (scl_1) begin
-        scl_high = (state == Idle || state == SendStart);
-        if (state == ReceiveAddressAck || state == ReceiveDataAck)
-            latched_ack = sda;
+        scl_high <= (state == Idle || state == SendStop);
+        if (state == ReceiveSlaveAddressAck || state == ReceiveDataAddressAck || state == ReceiveDataAck)
+            latched_ack <= sda;
+        if (state == SendStop) begin
+            sda_z <= 1;
+        end
     end
 
 endmodule

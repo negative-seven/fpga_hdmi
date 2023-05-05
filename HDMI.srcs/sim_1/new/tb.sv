@@ -57,17 +57,17 @@ initial begin
     rst = 1;
     repeat(2) @(posedge clk);
     rst = 0;
-    repeat(2) @(posedge clk);
+    repeat(5) @(posedge clk);
     
     write('b10100101, 'b10011001);
+    repeat(20) @(posedge clk);    
     write('b00110011, 'b01100001);
     
     repeat(50) @(posedge clk);
     $finish;
 end
 
-task write(address, data);
-    // begin write: 0xa5 = 0x99
+task write(input [7:0] address, input [7:0] data);
     rw = 0;
     data_address = address;
     wdata = data;
@@ -75,16 +75,24 @@ task write(address, data);
     @(posedge clk);
     wvalid = 0;
     
-    // receive address
+    // receive slave address
     repeat(9) @(posedge scl);
     
-    // address ack
+    // slave address ack
     force sda = 0;
     @(negedge scl);
     release sda;
     
-    // receive data and address
-    repeat(17) @(posedge scl);
+    // receive data address
+    repeat(9) @(posedge scl);
+    
+    // data address ack
+    force sda = 0;
+    @(negedge scl);
+    release sda;
+    
+    // receive data
+    repeat(9) @(posedge scl);
     
     // data ack
     force sda = 0;

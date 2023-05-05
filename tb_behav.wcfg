@@ -11,22 +11,18 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="5409180fs"></ZoomStartTime>
-      <ZoomEndTime time="6597181fs"></ZoomEndTime>
-      <Cursor1Time time="7000000fs"></Cursor1Time>
+      <ZoomStartTime time="11713489fs"></ZoomStartTime>
+      <ZoomEndTime time="12365490fs"></ZoomEndTime>
+      <Cursor1Time time="12725000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="211"></NameColumnWidth>
-      <ValueColumnWidth column_width="94"></ValueColumnWidth>
+      <ValueColumnWidth column_width="90"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="16" />
+   <WVObjectSize size="15" />
    <wvobject type="logic" fp_name="/tb/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/tb/rst">
-      <obj_property name="ElementShortName">rst</obj_property>
-      <obj_property name="ObjectShortName">rst</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/tb/scl">
       <obj_property name="ElementShortName">scl</obj_property>
@@ -72,10 +68,6 @@
       <obj_property name="ElementShortName">shift_counter[2:0]</obj_property>
       <obj_property name="ObjectShortName">shift_counter[2:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/tb/iic_master/shift_data_counter">
-      <obj_property name="ElementShortName">shift_data_counter[2:0]</obj_property>
-      <obj_property name="ObjectShortName">shift_data_counter[2:0]</obj_property>
-   </wvobject>
    <wvobject type="array" fp_name="/tb/iic_master/latched_data_address">
       <obj_property name="ElementShortName">latched_data_address[7:0]</obj_property>
       <obj_property name="ObjectShortName">latched_data_address[7:0]</obj_property>
@@ -83,5 +75,9 @@
    <wvobject type="logic" fp_name="/tb/iic_master/latched_wvalid">
       <obj_property name="ElementShortName">latched_wvalid</obj_property>
       <obj_property name="ObjectShortName">latched_wvalid</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/iic_master/latched_ack">
+      <obj_property name="ElementShortName">latched_ack</obj_property>
+      <obj_property name="ObjectShortName">latched_ack</obj_property>
    </wvobject>
 </wave_config>
