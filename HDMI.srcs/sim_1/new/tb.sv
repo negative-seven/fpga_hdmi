@@ -43,8 +43,8 @@ iic_avd7511_master #(.clk_div(20)) iic_master (
     .data_address(data_address),
     .wdata(wdata),
     .wvalid(wvalid),
-    .rdata(),
-    .rvalid(),
+    .rdata(rdata),
+    .rvalid(rvalid),
     .busy(busy)
     );
 
@@ -60,9 +60,13 @@ initial begin
     repeat(5) @(posedge clk);
     
     write('b10100101, 'b10011001);
-    repeat(20) @(posedge clk);    
+    repeat(50) @(posedge clk);    
     write('b00110011, 'b01100001);
+    repeat(50) @(posedge clk);
     
+    read('b00110011, 'b10011001);
+    repeat(50) @(posedge clk);    
+    read('b00110011, 'b01100001);
     repeat(50) @(posedge clk);
     $finish;
 end
@@ -75,7 +79,7 @@ task write(input [7:0] address, input [7:0] data);
     @(posedge clk);
     wvalid = 0;
     
-    // receive slave address
+    // receive slave address with write
     repeat(9) @(posedge scl);
     
     // slave address ack
@@ -98,6 +102,54 @@ task write(input [7:0] address, input [7:0] data);
     force sda = 0;
     @(negedge scl);
     release sda;
+    
+    @(negedge busy);
+endtask
+
+task read(input [7:0] address, input [7:0] data);
+    integer i;
+    
+    rw = 1;
+    data_address = address;
+    wvalid = 1;
+    @(posedge clk);
+    wvalid = 0;
+    
+    // receive slave address with write
+    repeat(9) @(posedge scl);
+    
+    // slave address ack
+    force sda = 0;
+    @(negedge scl);
+    release sda;
+    
+    // receive data address
+    repeat(9) @(posedge scl);
+    
+    // data address ack
+    force sda = 0;
+    @(negedge scl);
+    release sda;
+    
+    // receive second start
+    @(posedge scl);
+    
+    // receive slave address with read
+    repeat(9) @(posedge scl);
+    
+    // slave address ack
+    force sda = 0;
+    @(negedge scl);
+    release sda;
+    
+    // send data;
+    for (i = 0; i < 8; ++i) begin
+        @(posedge scl) force sda = data[7-i];
+        @(negedge scl) release sda;        
+    end
+
+    // receive data nack
+    @(posedge scl);
     
     @(negedge busy);
 endtask
