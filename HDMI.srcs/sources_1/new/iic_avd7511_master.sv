@@ -56,10 +56,19 @@ logic second_starting_frame;
 
 clock_divider #(.div(clk_div)) divider (.clk(clk), .rst(rst), .slow_clk(slow_clk), .impulse_0(scl_0), .impulse_1(scl_1), .impulse_n(scl_n));
 
+ila_0 your_instance_name (
+	.clk(clk), // input wire clk
+
+	.probe0(sda), // input wire [0:0]  probe0  
+	.probe1(scl), // input wire [0:0]  probe1 
+	.probe2(wvalid), // input wire [0:0]  probe2 
+	.probe3(busy) // input wire [0:0]  probe3
+);
+
 assign sda = sda_z ? 'z : sda_out;
 assign scl = scl_high ? 1 : slow_clk;
 
-assign busy = state != Idle || latched_wvalid;
+assign busy = state != Idle || latched_wvalid || wvalid;
 
 always @(posedge clk, posedge rst)
     if (rst) begin
@@ -74,7 +83,7 @@ wire shift_completed = (shift_counter == 0);
 always @* begin
     next_state = Idle;
     case (state)
-        Idle: if (latched_wvalid) next_state = SendStart;
+        Idle: if (latched_wvalid || wvalid) next_state = SendStart;
         SendStart: next_state = SendSlaveAddress;
         SendSlaveAddress: next_state = shift_completed ? SendRW : SendSlaveAddress;
         SendRW: next_state = ReceiveSlaveAddressAck;
@@ -107,10 +116,11 @@ always @(posedge clk, posedge rst) begin
         latched_wvalid <= 0;
         scl_high <= 1;
         second_starting_frame <= 0;
+        rvalid <= 0;
     end
     
     // latch data from input ports when it's valid
-    else if (wvalid && !busy) begin
+    else if (wvalid && !latched_wvalid) begin
 //        latched_slave_address <= 'h72 >> 1; // PD/AD pin low
         latched_rw <= rw;
         latched_data_address <= data_address;
@@ -126,9 +136,9 @@ always @(posedge clk, posedge rst) begin
                 shift_counter <= 0;
                 latched_sda <= 1;
                 second_starting_frame <= 0;
+                latched_wvalid <= 0;
             end
             SendStart: begin
-                latched_wvalid <= 0;
                 latched_slave_address <= 'h72 >> 1; // PD/AD pin low
             end
             SendSlaveAddress: begin
@@ -167,7 +177,7 @@ always @(posedge clk, posedge rst) begin
             end
             ReceiveData: begin
                 sda_z <= 1;
-                rdata <= {rdata[7:1], latched_sda};
+                rdata <= {rdata[6:0], latched_sda};
                 shift_counter <= shift_counter - 1;
             end
             SendDataNack: begin

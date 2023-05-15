@@ -55,6 +55,7 @@ end
 
 initial begin
     rst = 1;
+    wvalid = 0;
     repeat(2) @(posedge clk);
     rst = 0;
     repeat(5) @(posedge clk);
