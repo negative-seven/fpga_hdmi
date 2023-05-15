@@ -28,7 +28,7 @@ logic start;
 logic [7:0] leds;
 tri1 hd_sda;
 
-top #(4) top_instance (.clk(clk), .rst(rst), .start(start), .hd_scl(hd_scl), .hd_sda(hd_sda), .leds(leds));
+top #(10) top_instance (.clk(clk), .rst(rst), .start(start), .hd_scl(hd_scl), .hd_sda(hd_sda), .leds(leds));
 
 initial begin
     clk = 0;
@@ -44,12 +44,19 @@ initial begin
     @(posedge clk);
     start = 0;
     
-    send_write_acks();
-    @(posedge hd_scl);
-    send_read_acks();
+    respond_to_write();
+    respond_to_write();
+    respond_to_write();
+    respond_to_write();
+    respond_to_write();
+    respond_to_write();
+    respond_to_write();
+    respond_to_write();
+    respond_to_write();
+    respond_to_read();
 end
 
-task send_write_acks();
+task respond_to_write();
     // slave address ack
     repeat(9) @(posedge hd_scl);
     force hd_sda = 0;
@@ -67,9 +74,11 @@ task send_write_acks();
     force hd_sda = 0;
     @(negedge hd_scl);
     release hd_sda;
+    
+    @(posedge hd_scl);
 endtask
 
-task send_read_acks();
+task respond_to_read();
     // slave address ack
     repeat(9) @(posedge hd_scl);
     force hd_sda = 0;
@@ -98,6 +107,8 @@ task send_read_acks();
     @(posedge hd_scl) force hd_sda = 0;
     @(posedge hd_scl) force hd_sda = 1;
     @(posedge hd_scl) release hd_sda;
+    
+    @(posedge hd_scl);
 endtask
 
 endmodule
