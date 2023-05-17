@@ -35,17 +35,28 @@ typedef struct packed {
     logic [7:0] wdata;
 } transaction;
 
-const transaction transactions [0:9] = '{
+const transaction transactions [0:8 + 4] = '{
     '{0, 'h41, 0 << 6}, // set power-up
     '{0, 'h98, 'h03}, // required write, per documentation
     '{0, 'h9a, 'b11100000}, // required write, per documentation
-    '{0, 'h9c, 'h30}, // required write, per documentation
-    '{0, 'h9d, 'b01}, // required write, per documentation
-    '{0, 'ha2, 'ha4}, // required write, per documentation
-    '{0, 'ha3, 'ha4}, // required write, per documentation
-    '{0, 'he0, 'hd0}, // required write, per documentation
-    '{0, 'hf9, 'h00}, // required write, per documentation
-    '{1, 'h00, 0} // read chip revision
+    '{0, 'h9C, 'h30}, // required write, per documentation
+    '{0, 'h9D, 'b01}, // required write, per documentation
+    '{0, 'hA2, 'hA4}, // required write, per documentation
+    '{0, 'hA3, 'hA4}, // required write, per documentation
+    '{0, 'hE0, 'hD0}, // required write, per documentation
+    '{0, 'hF9, 'h00}, // required write, per documentation
+    // actual settings
+    // 0x15[3:0] Input ID - 4:2:2 with separate syncs
+    '{0, 'h15, 0b0001},
+    // 0x16[7] Output Format - 4:2:2
+    // 0x16[5:4] Color Depth - 8 bit
+    // 0x16[3:2] Input Style - style 2
+    // 0x16[0] Output Colorspcace - YCbCr
+    '{0, 'h16, {'b1, 0'b0,'b11, 'b01, 'b0, 'b1}},
+    // 0x17[1] Input Aspect Ratio - 16:9
+    '{0, 'h17, 1 << 1},
+    // 0xAF[1] HDMI/DVI Mode - HDMI
+    '{0, 'hAF, 1 << 1}
 };
 
 typedef enum { Idle, StartTransaction, WaitForEndTransaction, Stop } states;
