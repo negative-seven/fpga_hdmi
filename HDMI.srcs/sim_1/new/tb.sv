@@ -32,6 +32,7 @@ logic busy;
 logic rw;
 logic [7:0] data_address;
 logic [7:0] wdata;
+logic [7:0] rdata;
 logic wvalid;
 
 iic_avd7511_master #(.clk_div(20)) iic_master (

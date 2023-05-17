@@ -34,6 +34,7 @@ typedef struct packed {
     logic [7:0] data_address;
     logic [7:0] wdata;
 } transaction;
+
 const transaction transactions [0:9] = '{
     '{0, 'h41, 0 << 6}, // set power-up
     '{0, 'h98, 'h03}, // required write, per documentation

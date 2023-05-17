@@ -50,7 +50,7 @@ logic latched_rw;
 logic [7:0] latched_data_address;
 logic [7:0] latched_wdata;
 logic latched_wvalid;
-logic latched_sda;
+logic latched_ack;
 logic [2:0] shift_counter;
 logic second_starting_frame;
 
@@ -62,7 +62,9 @@ ila_0 your_instance_name (
 	.probe0(sda), // input wire [0:0]  probe0  
 	.probe1(scl), // input wire [0:0]  probe1 
 	.probe2(wvalid), // input wire [0:0]  probe2 
-	.probe3(busy) // input wire [0:0]  probe3
+	.probe3(scl_n), // input wire [0:0]  probe3
+	.probe4(scl_0),
+	.probe5(next_state)
 );
 
 assign sda = sda_z ? 'z : sda_out;
@@ -88,7 +90,7 @@ always @* begin
         SendSlaveAddress: next_state = shift_completed ? SendRW : SendSlaveAddress;
         SendRW: next_state = ReceiveSlaveAddressAck;
         ReceiveSlaveAddressAck: 
-            if (!latched_sda) // ack
+            if (!latched_ack) // ack
                 next_state = second_starting_frame ? ReceiveData : SendDataAddress;
             else // nack
                 next_state = SendStop;
@@ -98,7 +100,7 @@ always @* begin
             else
                 next_state = SendDataAddress;
         ReceiveDataAddressAck:
-            if (!latched_sda)
+            if (!latched_ack)
                 next_state = latched_rw ? SendStart : SendData;
             else
                 next_state = SendStop;
@@ -134,9 +136,8 @@ always @(posedge clk, posedge rst) begin
             Idle: begin
                 sda_z <= 1;
                 shift_counter <= 0;
-                latched_sda <= 1;
+                latched_ack <= 1;
                 second_starting_frame <= 0;
-                latched_wvalid <= 0;
             end
             SendStart: begin
                 latched_slave_address <= 'h72 >> 1; // PD/AD pin low
@@ -177,7 +178,6 @@ always @(posedge clk, posedge rst) begin
             end
             ReceiveData: begin
                 sda_z <= 1;
-                rdata <= {rdata[6:0], latched_sda};
                 shift_counter <= shift_counter - 1;
             end
             SendDataNack: begin
@@ -189,15 +189,18 @@ always @(posedge clk, posedge rst) begin
                 sda_z <= 0;
                 sda_out <= 0;
                 rvalid <= 0;
+                latched_wvalid <= 0;
             end
         endcase
     end 
     
-    // reading acks, data and sending stop signal
+    // reading acks and data, sending start/stop signal
     else if (scl_1) begin
         scl_high <= (state == Idle || state == SendStop);
         if (state == ReceiveSlaveAddressAck || state == ReceiveDataAddressAck || state == ReceiveDataAck || state == ReceiveData)
-            latched_sda <= sda;
+            latched_ack <= sda;
+        if (state == ReceiveData)
+            rdata <= {rdata[6:0], sda};
         if (state == SendStart) begin
             sda_z <= 0;
             sda_out <= 0;
