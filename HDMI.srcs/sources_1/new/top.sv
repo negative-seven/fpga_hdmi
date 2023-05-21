@@ -28,47 +28,65 @@ module top #(parameter clkdiv = 1000) (
     inout hd_sda,
     output logic [7:0] leds
     );
-    
+
 typedef struct packed {
-    logic rw;
+    enum {Read, Write, Mask, Modify} operation;
     logic [7:0] data_address;
-    logic [7:0] wdata;
+    union packed {
+        logic [7:0] wdata;
+        logic [7:0] mask;
+    } content;
 } transaction;
 
-const transaction transactions [0:8 + 4] = '{
-    '{0, 'h41, 0 << 6}, // set power-up
-    '{0, 'h98, 'h03}, // required write, per documentation
-    '{0, 'h9a, 'b11100000}, // required write, per documentation
-    '{0, 'h9C, 'h30}, // required write, per documentation
-    '{0, 'h9D, 'b01}, // required write, per documentation
-    '{0, 'hA2, 'hA4}, // required write, per documentation
-    '{0, 'hA3, 'hA4}, // required write, per documentation
-    '{0, 'hE0, 'hD0}, // required write, per documentation
-    '{0, 'hF9, 'h00}, // required write, per documentation
+const transaction transactions [0:10 + 12] = '{
+    '{Mask,   'h41, 1 << 6},
+    '{Modify, 'h41, 0 << 6}, // set power-up
+    '{Write,  'h98, 'h03}, // required write, per documentation
+    '{Write,  'h9a, 'b11100000}, // required write, per documentation
+    '{Write,  'h9C, 'h30}, // required write, per documentation
+    '{Mask,   'h9D, 'b11},
+    '{Modify, 'h9D, 'b01}, // required write, per documentation
+    '{Write,  'hA2, 'hA4}, // required write, per documentation
+    '{Write,  'hA3, 'hA4}, // required write, per documentation
+    '{Write,  'hE0, 'hD0}, // required write, per documentation
+    '{Write,  'hF9, 'h00}, // required write, per documentation
+
     // actual settings
     // 0x15[3:0] Input ID - 4:2:2 with separate syncs
-    '{0, 'h15, 0b0001},
+    '{Mask,   'h15, 'b1111},
+    '{Modify, 'h15, 'b0001},
     // 0x16[7] Output Format - 4:2:2
     // 0x16[5:4] Color Depth - 8 bit
     // 0x16[3:2] Input Style - style 2
     // 0x16[0] Output Colorspcace - YCbCr
-    '{0, 'h16, {'b1, 0'b0,'b11, 'b01, 'b0, 'b1}},
+    '{Mask,   'h16, 'b10111101},
+    '{Modify, 'h16, 'b1 << 7 | 'b11 << 4 | 'b01 << 2 | 'b1},
     // 0x17[1] Input Aspect Ratio - 16:9
-    '{0, 'h17, 1 << 1},
+    '{Mask,   'h17, 1 << 1},
+    '{Modify, 'h17, 1 << 1},
     // 0xAF[1] HDMI/DVI Mode - HDMI
-    '{0, 'hAF, 1 << 1}
+    '{Mask,   'hAF, 1 << 1},
+    '{Modify, 'hAF, 1 << 1},
+    // 0xBA[7:5] Clock Delay - 1.6ns
+    '{Mask,   'hBA, 'b111 << 5},
+    '{Modify, 'hBA, 'b111 << 5},
+    // 0x48[4:3] Video Input Justification - right justified
+    '{Mask,   'h48, 'b11 << 3},
+    '{Modify, 'h48, 'b01 << 3}
 };
 
 typedef enum { Idle, StartTransaction, WaitForEndTransaction, Stop } states;
 states state;
 states next_state;
 
-logic [$clog2($size(transactions) + 1) - 1:0] transaction_index;
+logic [$clog2($size(transactions)) - 1:0] transaction_index;
 logic rw;
 logic [7:0] data_address;
 logic [7:0] wdata;
 logic wvalid;
 logic [7:0] rdata;
+
+logic [7:0] mask;
 
 iic_avd7511_master #(clkdiv) master (
     .clk(clk), .rst(rst),
@@ -101,9 +119,24 @@ always @(posedge clk, posedge rst) begin
         state <= next_state;
         case (state)
             StartTransaction: begin
-                rw <= transactions[transaction_index].rw;
+                case (transactions[transaction_index].operation)
+                    Read: begin
+                        rw <= 1;               
+                    end
+                    Write: begin
+                        rw <= 0;
+                        wdata <= transactions[transaction_index].content.wdata;
+                    end
+                    Mask: begin
+                        rw <= 1;
+                        mask <= transactions[transaction_index].content.mask;
+                    end
+                    Modify: begin
+                        rw <= 0;
+                        wdata <= (~mask & rdata) | (mask & transactions[transaction_index].content.wdata);
+                    end
+                endcase
                 data_address <= transactions[transaction_index].data_address;
-                wdata <= transactions[transaction_index].wdata;
                 wvalid <= 1;
                 transaction_index <= transaction_index + 1;
             end
