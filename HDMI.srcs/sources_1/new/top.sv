@@ -26,11 +26,19 @@ module top #(parameter clkdiv = 1000) (
     input start,
     output hd_scl,
     inout hd_sda,
-    output logic [7:0] leds
-    );
+    
+    output hd_clk,
+    output logic [7:0] hd_Y,
+    output logic [7:0] hd_CbCr,
+    output hd_de,
+    output hd_hsync,
+    output hd_vsync
+);
+
+assign hd_clk = clk;
 
 typedef struct packed {
-    enum {Read, Write, Mask, Modify} operation;
+    enum logic [1:0] {Read, Write, Mask, Modify} operation;
     logic [7:0] data_address;
     union packed {
         logic [7:0] wdata;
@@ -88,11 +96,24 @@ logic [7:0] rdata;
 
 logic [7:0] mask;
 
+logic start_generator;
+logic [11:0] x, y;
+
 iic_avd7511_master #(clkdiv) master (
     .clk(clk), .rst(rst),
     .scl(hd_scl), .sda(hd_sda),
     .rw(rw), .data_address(data_address), .wdata(wdata), .wvalid(wvalid), .rdata(rdata), .rvalid(rvalid), .busy(busy)
 );
+
+sync_generator sync_generator(
+    .clk(clk), .rst(rst), .start(start_generator),
+    .x(x), .y(y), .de(hd_de), .hsync(hd_hsync), .vsync(hd_vsync)
+);
+
+always @(posedge clk) begin
+    hd_Y <= x[2] ? 0 : 'hFF;
+    hd_CbCr <= 0;
+end
 
 always @* begin
     next_state = Idle;
@@ -108,35 +129,37 @@ always @* begin
     endcase
 end
 
+transaction curr_trx = transactions[transaction_index];
+
 always @(posedge clk, posedge rst) begin
     if (rst) begin
         transaction_index <= 0;
         state <= Idle;
         wvalid <= 0;
-        leds <= 'b11111111;
+        start_generator <= 0;
     end
     else begin
         state <= next_state;
         case (state)
             StartTransaction: begin
-                case (transactions[transaction_index].operation)
+                case (curr_trx.operation)
                     Read: begin
                         rw <= 1;               
                     end
                     Write: begin
                         rw <= 0;
-                        wdata <= transactions[transaction_index].content.wdata;
+                        wdata <= curr_trx.content.wdata;
                     end
                     Mask: begin
                         rw <= 1;
-                        mask <= transactions[transaction_index].content.mask;
+                        mask <= curr_trx.content.mask;
                     end
                     Modify: begin
                         rw <= 0;
-                        wdata <= (~mask & rdata) | (mask & transactions[transaction_index].content.wdata);
+                        wdata <= (~mask & rdata) | (mask & curr_trx.content.wdata);
                     end
                 endcase
-                data_address <= transactions[transaction_index].data_address;
+                data_address <= curr_trx.data_address;
                 wvalid <= 1;
                 transaction_index <= transaction_index + 1;
             end
@@ -144,10 +167,10 @@ always @(posedge clk, posedge rst) begin
                 wvalid <= 0;
             end
             Stop: begin
-                leds <= rdata;
+                start_generator <= 1;
             end
         endcase
     end
 end
-    
+
 endmodule
