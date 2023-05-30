@@ -110,8 +110,14 @@ sync_generator sync_generator(
     .x(x), .y(y), .de(hd_de), .hsync(hd_hsync), .vsync(hd_vsync)
 );
 
+localparam h = 480;
+localparam w = 800;
 always @(posedge clk) begin
-    hd_Y <= x[2] ? 0 : 'hFF;
+    if ((x + y > 1 && x + y < 7 && x - y < 3 && y - x < 3) ||
+        (x + y > (h + w - 2) - 7 && x + y < (h + w - 3) && x - y < (w - h) + 3 && y - x < (h - w) + 3))
+        hd_Y <= 'hFF;
+    else
+        hd_Y <= 0;
     hd_CbCr <= 0;
 end
 
