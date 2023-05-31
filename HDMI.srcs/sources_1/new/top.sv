@@ -46,7 +46,7 @@ typedef struct packed {
     } content;
 } transaction;
 
-const transaction transactions [0:10 + 12] = '{
+const transaction transactions [0:10 + 14] = '{
     '{Mask,   'h41, 1 << 6},
     '{Modify, 'h41, 0 << 6}, // set power-up
     '{Write,  'h98, 'h03}, // required write, per documentation
@@ -66,12 +66,12 @@ const transaction transactions [0:10 + 12] = '{
     // 0x16[7] Output Format - 4:2:2
     // 0x16[5:4] Color Depth - 8 bit
     // 0x16[3:2] Input Style - style 2
-    // 0x16[0] Output Colorspcace - YCbCr
+    // 0x16[0] Output Colorspcace - RGB
     '{Mask,   'h16, 'b10111101},
-    '{Modify, 'h16, 'b1 << 7 | 'b11 << 4 | 'b01 << 2 | 'b1},
+    '{Modify, 'h16, 'b1 << 7 | 'b11 << 4 | 'b01 << 2 | 'b0},
     // 0x17[1] Input Aspect Ratio - 16:9
     '{Mask,   'h17, 1 << 1},
-    '{Modify, 'h17, 1 << 1},
+    '{Modify, 'h17, 0 << 1},
     // 0xAF[1] HDMI/DVI Mode - HDMI
     '{Mask,   'hAF, 1 << 1},
     '{Modify, 'hAF, 1 << 1},
@@ -80,7 +80,10 @@ const transaction transactions [0:10 + 12] = '{
     '{Modify, 'hBA, 'b111 << 5},
     // 0x48[4:3] Video Input Justification - right justified
     '{Mask,   'h48, 'b11 << 3},
-    '{Modify, 'h48, 'b01 << 3}
+    '{Modify, 'h48, 'b01 << 3},
+
+    '{Mask,   'h18, 1 << 7},
+    '{Modify, 'h18, 1 << 7}
 };
 
 typedef enum { Idle, StartTransaction, WaitForEndTransaction, Stop } states;
@@ -113,12 +116,8 @@ sync_generator sync_generator(
 localparam h = 480;
 localparam w = 800;
 always @(posedge clk) begin
-    if ((x + y > 1 && x + y < 7 && x - y < 3 && y - x < 3) ||
-        (x + y > (h + w - 2) - 7 && x + y < (h + w - 3) && x - y < (w - h) + 3 && y - x < (h - w) + 3))
-        hd_Y <= 'hFF;
-    else
-        hd_Y <= 0;
-    hd_CbCr <= 0;
+    hd_Y <= 127;
+    hd_CbCr <= x[0] ? 255 : x;
 end
 
 always @* begin

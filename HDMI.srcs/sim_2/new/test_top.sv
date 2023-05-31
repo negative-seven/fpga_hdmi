@@ -28,7 +28,7 @@ logic start;
 logic [7:0] leds;
 tri1 hd_sda;
 
-top #(10) top_instance (.clk(clk), .rst(rst), .start(start), .hd_scl(hd_scl), .hd_sda(hd_sda), .leds(leds));
+top #(10) top_instance (.clk(clk), .rst(rst), .start(start), .hd_scl(hd_scl), .hd_sda(hd_sda));
 
 initial begin
     clk = 0;

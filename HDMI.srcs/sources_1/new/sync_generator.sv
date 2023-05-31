@@ -31,19 +31,19 @@ module sync_generator(
     output logic vsync
 );
 
-localparam height = 480;
-localparam width = 800;
+localparam hData = 800;
+localparam vData = 480;
 
-// arbitrary values
-localparam vfrontporch = 10;
+localparam hfrontporch = 24;
+localparam hsync_len = 72;
+localparam hbackporch = 96;
+
+localparam vfrontporch = 3;
+localparam vsync_len = 7;
 localparam vbackporch = 10;
-localparam vsync_len = 5;
-localparam hfrontporch = 10;
-localparam hbackporch = 10;
-localparam hsync_len = 5;
 
-localparam vtotal = height + vfrontporch + vbackporch + vsync_len;
-localparam htotal = width + hfrontporch + hbackporch + hsync_len;
+localparam htotal = hfrontporch + hsync_len + hbackporch + hData;
+localparam vtotal = vfrontporch + vsync_len + vbackporch + vData;
 
 logic started;
 
@@ -74,11 +74,11 @@ always @(posedge clk, posedge rst) begin
         vcounter <= vcounter + 1;
 end
 
-assign x = hcounter - hfrontporch;
-assign y = vcounter - vfrontporch;
+assign x = hcounter - (htotal - hData);
+assign y = vcounter - (vtotal - vData);
 
-wire hactive = hcounter >= hfrontporch && hcounter < hfrontporch + width;
-wire vactive = vcounter >= vfrontporch && vcounter < vfrontporch + height;
+wire hactive = hcounter >= (htotal - hData);
+wire vactive = vcounter >= (vtotal - vData);
 
 always @(posedge clk, posedge rst) begin
     if (rst) begin
@@ -88,8 +88,8 @@ always @(posedge clk, posedge rst) begin
     end
     else begin
         de <= hactive && vactive;
-        hsync <= (hcounter >= htotal - hsync_len);
-        vsync <= (vcounter >= vtotal - vsync_len);
+        hsync <= (hcounter >= hfrontporch && hcounter < hfrontporch + hsync_len);
+        vsync <= (vcounter >= vfrontporch && vcounter < vfrontporch + vsync_len);
     end
 end
 
