@@ -35,7 +35,52 @@ module top #(parameter clkdiv = 1000) (
     output hd_vsync
 );
 
-assign hd_clk = clk;
+typedef enum logic [0:0] {InterfaceModeDVI = 0, InterfaceModeHDMI = 1} interface_mode;
+const interface_mode INTERFACE_MODE = InterfaceModeHDMI;
+
+// Input IDs:
+// 0000 = 24 bit RGB 4:4:4 or YCbCr 4:4:4 (separate syncs)
+// 0001 = 16, 20, 24 bit YCbCr 4:2:2 (separate syncs)
+// 0010 = 16, 20, 24 bit YCbCr 4:2:2 (embedded syncs)
+// 0011 = 8, 10, 12 bit YCbCr 4:2:2 (2x pixel clock, separate syncs)
+// 0100 = 8, 10, 12 bit YCbCr 4:2:2 (2x pixel clock, embedded syncs)
+// 0101 = 12, 15, 16 bit RGB 4:4:4 or YCbCr (DDR with separate syncs)
+// 0110 = 8, 10, 12 bit YCbCr 4:2:2 (DDR with separate syncs)
+// 0111 = 8, 10, 12 bit YCbCr 4:2:2 (DDR separate syncs)
+// 1000 = 8, 10, 12 bit YCbCr 4:2:2 (DDR embedded syncs)
+const logic [3:0] INPUT_ID = 'b0001;
+
+typedef enum logic [1:0] {InputStyle2 = 'b01, InputStyle1 = 'b10, InputStyle3 = 'b11} input_style;
+const input_style INPUT_STYLE = InputStyle2;
+
+typedef enum logic [1:0] {InputVideoEvenlyJustified = 'b00, InputVideoRightJustified = 'b01, InputVideoLeftJustified = 'b10} input_video_justification;
+const input_video_justification INPUT_VIDEO_JUSTIFICATION = InputVideoRightJustified;
+
+typedef enum logic [1:0] {InputColorDepth12Bit = 'b10, InputColorDepth10Bit = 'b01, InputColorDepth8Bit = 'b11} input_color_depth;
+const input_color_depth INPUT_COLOR_DEPTH = InputColorDepth8Bit;
+
+typedef enum logic [0:0] {InputAspectRatio4_3 = 0, InputAspectRatio16_9 = 1} input_aspect_ratio;
+const input_aspect_ratio INPUT_ASPECT_RATIO = InputAspectRatio4_3;
+
+typedef enum logic [2:0] {
+    InputVideoClockDelayNegative1200ns = 'b000,
+    InputVideoClockDelayNegative800ns = 'b001,
+    InputVideoClockDelayNegative400ns = 'b010,
+    InputVideoClockDelayNone = 'b011,
+    InputVideoClockDelay400ns = 'b100,
+    InputVideoClockDelay800ns = 'b101,
+    InputVideoClockDelay1200ns = 'b110,
+    InputVideoClockDelay1600ns = 'b111
+} input_video_clock_delay;
+const input_video_clock_delay INPUT_VIDEO_CLOCK_DELAY = InputVideoClockDelay1600ns;
+
+typedef enum logic [0:0] {OutputFormat4_4_4 = 0, OutputFormat4_2_2 = 1} output_format;
+const output_format OUTPUT_FORMAT = OutputFormat4_2_2;
+
+typedef enum logic [0:0] {OutputColorSpaceRGB = 0, OutputColorSpaceYCbCr = 1} output_color_space;
+const output_color_space OUTPUT_COLOR_SPACE = OutputColorSpaceRGB;
+
+const logic COLOR_SPACE_CONVERTER_ENABLED = 1;
 
 typedef struct packed {
     enum logic [1:0] {Read, Write, Mask, Modify} operation;
@@ -46,11 +91,14 @@ typedef struct packed {
     } content;
 } transaction;
 
+logic a = InterfaceModeDVI;
+
 const transaction transactions [0:10 + 14] = '{
+    // initialization
     '{Mask,   'h41, 1 << 6},
     '{Modify, 'h41, 0 << 6}, // set power-up
     '{Write,  'h98, 'h03}, // required write, per documentation
-    '{Write,  'h9a, 'b11100000}, // required write, per documentation
+    '{Write,  'h9A, 'b11100000}, // required write, per documentation
     '{Write,  'h9C, 'h30}, // required write, per documentation
     '{Mask,   'h9D, 'b11},
     '{Modify, 'h9D, 'b01}, // required write, per documentation
@@ -59,31 +107,31 @@ const transaction transactions [0:10 + 14] = '{
     '{Write,  'hE0, 'hD0}, // required write, per documentation
     '{Write,  'hF9, 'h00}, // required write, per documentation
 
-    // actual settings
-    // 0x15[3:0] Input ID - 4:2:2 with separate syncs
+    // video settings
+    // 0x15[3:0] Input ID
     '{Mask,   'h15, 'b1111},
-    '{Modify, 'h15, 'b0001},
-    // 0x16[7] Output Format - 4:2:2
-    // 0x16[5:4] Color Depth - 8 bit
-    // 0x16[3:2] Input Style - style 2
-    // 0x16[0] Output Colorspcace - RGB
+    '{Modify, 'h15, INPUT_ID},
+    // 0x16[7] Output Format
+    // 0x16[5:4] Color Depth
+    // 0x16[3:2] Input Style
+    // 0x16[0] Output Color Space
     '{Mask,   'h16, 'b10111101},
-    '{Modify, 'h16, 'b1 << 7 | 'b11 << 4 | 'b01 << 2 | 'b0},
-    // 0x17[1] Input Aspect Ratio - 16:9
+    '{Modify, 'h16, OUTPUT_FORMAT << 7 | INPUT_COLOR_DEPTH << 4 | INPUT_STYLE << 2 | OUTPUT_COLOR_SPACE},
+    // 0x17[1] Input Aspect Ratio
     '{Mask,   'h17, 1 << 1},
-    '{Modify, 'h17, 0 << 1},
-    // 0xAF[1] HDMI/DVI Mode - HDMI
+    '{Modify, 'h17, INPUT_ASPECT_RATIO << 1},
+    // 0xAF[1] HDMI/DVI Mode
     '{Mask,   'hAF, 1 << 1},
-    '{Modify, 'hAF, 1 << 1},
-    // 0xBA[7:5] Clock Delay - 1.6ns
+    '{Modify, 'hAF, INTERFACE_MODE << 1},
+    // 0xBA[7:5] Clock Delay
     '{Mask,   'hBA, 'b111 << 5},
-    '{Modify, 'hBA, 'b111 << 5},
-    // 0x48[4:3] Video Input Justification - right justified
+    '{Modify, 'hBA, INPUT_VIDEO_CLOCK_DELAY << 5},
+    // 0x48[4:3] Video Input Justification
     '{Mask,   'h48, 'b11 << 3},
-    '{Modify, 'h48, 'b01 << 3},
-
+    '{Modify, 'h48, INPUT_VIDEO_JUSTIFICATION << 3},
+    // 0x18[7] Color Space Converter Enable
     '{Mask,   'h18, 1 << 7},
-    '{Modify, 'h18, 1 << 7}
+    '{Modify, 'h18, COLOR_SPACE_CONVERTER_ENABLED << 7}
 };
 
 typedef enum { Idle, StartTransaction, WaitForEndTransaction, Stop } states;
@@ -101,6 +149,8 @@ logic [7:0] mask;
 
 logic start_generator;
 logic [11:0] x, y;
+
+assign hd_clk = clk;
 
 iic_avd7511_master #(clkdiv) master (
     .clk(clk), .rst(rst),
