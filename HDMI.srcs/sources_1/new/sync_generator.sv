@@ -62,7 +62,7 @@ always @(posedge clk, posedge rst) begin
     else if (hcounter == htotal - 1)
         hcounter <= 0;
     else if (started)
-        hcounter <= hcounter + 1;    
+        hcounter <= hcounter + 1;
 end
 
 always @(posedge clk, posedge rst) begin

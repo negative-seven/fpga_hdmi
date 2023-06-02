@@ -51,16 +51,19 @@ const interface_mode INTERFACE_MODE = InterfaceModeHDMI;
 const logic [3:0] INPUT_ID = 'b0001;
 
 typedef enum logic [1:0] {InputStyle2 = 'b01, InputStyle1 = 'b10, InputStyle3 = 'b11} input_style;
-const input_style INPUT_STYLE = InputStyle2;
+const input_style INPUT_STYLE = InputStyle3;
 
-typedef enum logic [1:0] {InputVideoEvenlyJustified = 'b00, InputVideoRightJustified = 'b01, InputVideoLeftJustified = 'b10} input_video_justification;
-const input_video_justification INPUT_VIDEO_JUSTIFICATION = InputVideoRightJustified;
+typedef enum logic [1:0] {InputVideoEvenlyDistributed = 'b00, InputVideoRightJustified = 'b01, InputVideoLeftJustified = 'b10} input_video_justification;
+const input_video_justification INPUT_VIDEO_JUSTIFICATION = InputVideoEvenlyDistributed;
 
 typedef enum logic [1:0] {InputColorDepth12Bit = 'b10, InputColorDepth10Bit = 'b01, InputColorDepth8Bit = 'b11} input_color_depth;
 const input_color_depth INPUT_COLOR_DEPTH = InputColorDepth8Bit;
 
 typedef enum logic [0:0] {InputAspectRatio4_3 = 0, InputAspectRatio16_9 = 1} input_aspect_ratio;
 const input_aspect_ratio INPUT_ASPECT_RATIO = InputAspectRatio4_3;
+
+const enum logic [0:0] {InterpolationStyleZeroOrder = 0, InterpolationStyleFirstOrder = 1}
+    INTERPOLATION_STYLE = InterpolationStyleFirstOrder;
 
 typedef enum logic [2:0] {
     InputVideoClockDelayNegative1200ns = 'b000,
@@ -117,9 +120,10 @@ const transaction transactions [0:10 + 14] = '{
     // 0x16[0] Output Color Space
     '{Mask,   'h16, 'b10111101},
     '{Modify, 'h16, OUTPUT_FORMAT << 7 | INPUT_COLOR_DEPTH << 4 | INPUT_STYLE << 2 | OUTPUT_COLOR_SPACE},
+    // 0x17[2] 4:2:2 to 4:4:4 Interpolation Style
     // 0x17[1] Input Aspect Ratio
-    '{Mask,   'h17, 1 << 1},
-    '{Modify, 'h17, INPUT_ASPECT_RATIO << 1},
+    '{Mask,   'h17, 1 << 2 | 1 << 1},
+    '{Modify, 'h17, INTERPOLATION_STYLE << 2 | INPUT_ASPECT_RATIO << 1},
     // 0xAF[1] HDMI/DVI Mode
     '{Mask,   'hAF, 1 << 1},
     '{Modify, 'hAF, INTERFACE_MODE << 1},
@@ -165,9 +169,32 @@ sync_generator sync_generator(
 
 localparam h = 480;
 localparam w = 800;
+
+localparam imageSize = w * h / 16;
+(* rom_style="block" *)
+logic [23:0] image [0:imageSize-1];
+initial $readmemh("watermelon.mem", image);
+
+logic [$clog2(w*h)-1:0] position;
+
+logic [7:0] Y;
+logic [7:0] Cb;
+logic [7:0] Cr;
+
+// TODO this is now unsynchronized with syncs, to be fixed
 always @(posedge clk) begin
-    hd_Y <= 127;
-    hd_CbCr <= x[0] ? 255 : x;
+    position <= x[11:2] + w / 4 * y[11:2];
+
+    Y <= image[position][23:16];
+    Cb <= image[position][15:8];
+    Cr <= image[position][7:0];
+end
+
+wire oddPixel = x[0];
+
+always @(posedge clk) begin
+    hd_Y <= Y;
+    hd_CbCr <= !oddPixel ? Cb : Cr;
 end
 
 always @* begin
