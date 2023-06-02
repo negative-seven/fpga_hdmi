@@ -56,17 +56,6 @@ logic second_starting_frame;
 
 clock_divider #(.div(clk_div)) divider (.clk(clk), .rst(rst), .slow_clk(slow_clk), .impulse_0(scl_0), .impulse_1(scl_1), .impulse_n(scl_n));
 
-// ila_0 your_instance_name (
-// 	.clk(clk), // input wire clk
-
-// 	.probe0(sda), // input wire [0:0]  probe0  
-// 	.probe1(scl), // input wire [0:0]  probe1 
-// 	.probe2(wvalid), // input wire [0:0]  probe2 
-// 	.probe3(scl_n), // input wire [0:0]  probe3
-// 	.probe4(scl_0),
-// 	.probe5(next_state)
-// );
-
 assign sda = sda_z ? 'z : sda_out;
 assign scl = scl_high ? 1 : slow_clk;
 
