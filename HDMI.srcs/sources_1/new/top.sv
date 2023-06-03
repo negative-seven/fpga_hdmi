@@ -24,12 +24,12 @@ module top #(parameter clkdiv = 1000) (
     input clk,
     input rst,
     input start,
+
     output hd_scl,
     inout hd_sda,
     
     output hd_clk,
-    output logic [7:0] hd_Y,
-    output logic [7:0] hd_CbCr,
+    output [15:0] hd_data,
     output hd_de,
     output hd_hsync,
     output hd_vsync
@@ -152,9 +152,6 @@ logic [7:0] rdata;
 logic [7:0] mask;
 
 logic start_generator;
-logic [11:0] x, y;
-
-assign hd_clk = clk;
 
 iic_avd7511_master #(clkdiv) master (
     .clk(clk), .rst(rst),
@@ -162,40 +159,10 @@ iic_avd7511_master #(clkdiv) master (
     .rw(rw), .data_address(data_address), .wdata(wdata), .wvalid(wvalid), .rdata(rdata), .rvalid(rvalid), .busy(busy)
 );
 
-sync_generator sync_generator(
+video_generator video_generator(
     .clk(clk), .rst(rst), .start(start_generator),
-    .x(x), .y(y), .de(hd_de), .hsync(hd_hsync), .vsync(hd_vsync)
+    .data_clk(hd_clk), .data(hd_data), .de(hd_de), .hsync(hd_hsync), .vsync(hd_vsync)
 );
-
-localparam h = 480;
-localparam w = 800;
-
-localparam imageSize = w * h / 16;
-(* rom_style="block" *)
-logic [23:0] image [0:imageSize-1];
-initial $readmemh("watermelon.mem", image);
-
-logic [$clog2(w*h)-1:0] position;
-
-logic [7:0] Y;
-logic [7:0] Cb;
-logic [7:0] Cr;
-
-// TODO this is now unsynchronized with syncs, to be fixed
-always @(posedge clk) begin
-    position <= x[11:2] + w / 4 * y[11:2];
-
-    Y <= image[position][23:16];
-    Cb <= image[position][15:8];
-    Cr <= image[position][7:0];
-end
-
-wire oddPixel = x[0];
-
-always @(posedge clk) begin
-    hd_Y <= Y;
-    hd_CbCr <= !oddPixel ? Cb : Cr;
-end
 
 always @* begin
     next_state = Idle;

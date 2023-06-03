@@ -20,19 +20,19 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module sync_generator(
+module sync_generator #(parameter 
+    hdata = 800,
+    vdata = 480
+) (
     input clk,
     input rst,
-    input start,
+    input enabled,
     output [11:0] x,
     output [11:0] y,
     output logic de,
     output logic hsync,
     output logic vsync
 );
-
-localparam hData = 800;
-localparam vData = 480;
 
 localparam hfrontporch = 24;
 localparam hsync_len = 72;
@@ -42,16 +42,8 @@ localparam vfrontporch = 3;
 localparam vsync_len = 7;
 localparam vbackporch = 10;
 
-localparam htotal = hfrontporch + hsync_len + hbackporch + hData;
-localparam vtotal = vfrontporch + vsync_len + vbackporch + vData;
-
-logic started;
-
-always @(posedge clk, posedge rst)
-    if (rst)
-        started <= 0;
-    else if (start)
-        started <= 1;
+localparam htotal = hfrontporch + hsync_len + hbackporch + hdata;
+localparam vtotal = vfrontporch + vsync_len + vbackporch + vdata;
 
 logic [$clog2(htotal)-1:0] hcounter;
 logic [$clog2(vtotal)-1:0] vcounter;
@@ -61,7 +53,7 @@ always @(posedge clk, posedge rst) begin
         hcounter <= 0;
     else if (hcounter == htotal - 1)
         hcounter <= 0;
-    else if (started)
+    else if (enabled)
         hcounter <= hcounter + 1;
 end
 
@@ -74,11 +66,11 @@ always @(posedge clk, posedge rst) begin
         vcounter <= vcounter + 1;
 end
 
-assign x = hcounter - (htotal - hData);
-assign y = vcounter - (vtotal - vData);
+assign x = hcounter - (htotal - hdata);
+assign y = vcounter - (vtotal - vdata);
 
-wire hactive = hcounter >= (htotal - hData);
-wire vactive = vcounter >= (vtotal - vData);
+wire hactive = hcounter >= (htotal - hdata);
+wire vactive = vcounter >= (vtotal - vdata);
 
 always @(posedge clk, posedge rst) begin
     if (rst) begin
