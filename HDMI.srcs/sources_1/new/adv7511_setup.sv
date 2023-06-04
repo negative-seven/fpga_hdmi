@@ -13,8 +13,8 @@ module adv7511_setup #(parameter clk_div=1000) (
 
 // settings
 
-typedef enum logic [0:0] {InterfaceModeDVI = 0, InterfaceModeHDMI = 1} interface_mode;
-const interface_mode INTERFACE_MODE = InterfaceModeHDMI;
+const enum logic [0:0] {InterfaceModeDVI = 0, InterfaceModeHDMI = 1}
+    INTERFACE_MODE = InterfaceModeHDMI;
 
 // Input IDs:
 // 0000 = 24 bit RGB 4:4:4 or YCbCr 4:4:4 (separate syncs)
@@ -28,22 +28,22 @@ const interface_mode INTERFACE_MODE = InterfaceModeHDMI;
 // 1000 = 8, 10, 12 bit YCbCr 4:2:2 (DDR embedded syncs)
 const logic [3:0] INPUT_ID = 'b0001;
 
-typedef enum logic [1:0] {InputStyle2 = 'b01, InputStyle1 = 'b10, InputStyle3 = 'b11} input_style;
-const input_style INPUT_STYLE = InputStyle3;
+const enum logic [1:0] {InputStyle2 = 'b01, InputStyle1 = 'b10, InputStyle3 = 'b11}
+    INPUT_STYLE = InputStyle3;
 
-typedef enum logic [1:0] {InputVideoEvenlyDistributed = 'b00, InputVideoRightJustified = 'b01, InputVideoLeftJustified = 'b10} input_video_justification;
-const input_video_justification INPUT_VIDEO_JUSTIFICATION = InputVideoEvenlyDistributed;
+const enum logic [1:0] {InputVideoEvenlyDistributed = 'b00, InputVideoRightJustified = 'b01, InputVideoLeftJustified = 'b10}
+    INPUT_VIDEO_JUSTIFICATION = InputVideoEvenlyDistributed;
 
-typedef enum logic [1:0] {InputColorDepth12Bit = 'b10, InputColorDepth10Bit = 'b01, InputColorDepth8Bit = 'b11} input_color_depth;
-const input_color_depth INPUT_COLOR_DEPTH = InputColorDepth8Bit;
+const enum logic [1:0] {InputColorDepth12Bit = 'b10, InputColorDepth10Bit = 'b01, InputColorDepth8Bit = 'b11}
+    INPUT_COLOR_DEPTH = InputColorDepth8Bit;
 
-typedef enum logic [0:0] {InputAspectRatio4_3 = 0, InputAspectRatio16_9 = 1} input_aspect_ratio;
-const input_aspect_ratio INPUT_ASPECT_RATIO = InputAspectRatio4_3;
+const enum logic [0:0] {InputAspectRatio4_3 = 0, InputAspectRatio16_9 = 1}
+    INPUT_ASPECT_RATIO = InputAspectRatio4_3;
 
 const enum logic [0:0] {InterpolationStyleZeroOrder = 0, InterpolationStyleFirstOrder = 1}
     INTERPOLATION_STYLE = InterpolationStyleFirstOrder;
 
-typedef enum logic [2:0] {
+const enum logic [2:0] {
     InputVideoClockDelayNegative1200ns = 'b000,
     InputVideoClockDelayNegative800ns = 'b001,
     InputVideoClockDelayNegative400ns = 'b010,
@@ -52,14 +52,14 @@ typedef enum logic [2:0] {
     InputVideoClockDelay800ns = 'b101,
     InputVideoClockDelay1200ns = 'b110,
     InputVideoClockDelay1600ns = 'b111
-} input_video_clock_delay;
-const input_video_clock_delay INPUT_VIDEO_CLOCK_DELAY = InputVideoClockDelay1600ns;
+}
+    INPUT_VIDEO_CLOCK_DELAY = InputVideoClockDelay1600ns;
 
-typedef enum logic [0:0] {OutputFormat4_4_4 = 0, OutputFormat4_2_2 = 1} output_format;
-const output_format OUTPUT_FORMAT = OutputFormat4_2_2;
+const enum logic [0:0] {OutputFormat4_4_4 = 0, OutputFormat4_2_2 = 1}
+    OUTPUT_FORMAT = OutputFormat4_2_2;
 
-typedef enum logic [0:0] {OutputColorSpaceRGB = 0, OutputColorSpaceYCbCr = 1} output_color_space;
-const output_color_space OUTPUT_COLOR_SPACE = OutputColorSpaceRGB;
+const enum logic [0:0] {OutputColorSpaceRGB = 0, OutputColorSpaceYCbCr = 1}
+    OUTPUT_COLOR_SPACE = OutputColorSpaceRGB;
 
 const logic COLOR_SPACE_CONVERTER_ENABLED = 1;
 
