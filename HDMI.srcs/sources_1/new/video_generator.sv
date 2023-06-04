@@ -13,8 +13,10 @@ module video_generator (
 
 assign data_clk = clk;
 
-localparam image_width = 800;
-localparam image_height = 480;
+localparam screen_width = 800;
+localparam screen_height = 480;
+localparam image_width = 200;
+localparam image_height = 120;
 
 logic functioning;
 
@@ -39,8 +41,12 @@ sync_generator #(.hdata(image_width), .vdata(image_height)) sync_generator(
     .x(x), .y(y), .de(gen_de), .hsync(gen_hsync), .vsync(gen_vsync)
 );
 
-color_selector #(.image_width(image_width), .image_height(image_height)) color_selector(
-    .clk(clk), .x(x), .y(y),
+bouncing_image_color_selector #(
+    .screen_width(screen_width), .screen_height(screen_height),
+    .image_width(image_width), .image_height(image_height)
+) color_selector(
+    .clk(clk), .rst(rst),
+    .x(x), .y(y),
     .Y(Y), .Cb(Cb), .Cr(Cr)
 );
 

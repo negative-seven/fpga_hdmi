@@ -1,10 +1,12 @@
 `timescale 1ns / 1ps
 
-module color_selector #(parameter
-    image_width = 800,
-    image_height = 480
+module static_image_color_selector #(parameter
+    image_width = 200,
+    image_height = 120,
+    scale_factor = 4
 ) (
     input clk,
+    input rst,
     input [11:0] x,
     input [11:0] y,
     output logic [7:0] Y,
@@ -12,7 +14,7 @@ module color_selector #(parameter
     output logic [7:0] Cr
 );
 
-localparam image_size = image_width * image_height / 16;
+localparam image_size = image_width * image_height;
 
 (* rom_style="block" *)
 logic [23:0] image [0:image_size-1];
@@ -26,7 +28,7 @@ assign Cr = image[position][7:0];
 
 // TODO this is now unsynchronized with syncs, to be fixed
 always @(posedge clk) begin
-    position <= x[11:2] + image_width / 4 * y[11:2];
+    position <= (x / scale_factor) + image_width * (y / scale_factor);
 end
 
 
