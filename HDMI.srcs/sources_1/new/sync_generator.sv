@@ -66,11 +66,11 @@ always @(posedge clk, posedge rst) begin
         vcounter <= vcounter + 1;
 end
 
-assign x = hcounter - (htotal - hdata);
-assign y = vcounter - (vtotal - vdata);
-
 wire hactive = hcounter >= (htotal - hdata);
 wire vactive = vcounter >= (vtotal - vdata);
+
+assign x = hactive ? hcounter - (htotal - hdata) : 0;
+assign y = vactive ? vcounter - (vtotal - vdata) : 0;
 
 always @(posedge clk, posedge rst) begin
     if (rst) begin

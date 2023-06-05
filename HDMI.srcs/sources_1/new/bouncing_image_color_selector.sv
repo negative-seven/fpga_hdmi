@@ -44,7 +44,7 @@ always @(posedge clk, posedge rst) begin
         moving_down <= 1;
     end
     else begin
-        if (x == screen_width - 1 && y == screen_height - 1) begin // hack: update image position and velocity at end of read
+        if (x == 1 && y == 1) begin // hack: update image position and velocity at end of read
             image_x <= image_x + (moving_right ? 1 : -1);
             image_y <= image_y + (moving_down ? 1 : -1);
             
@@ -71,9 +71,9 @@ always @* begin
         Cr = image[position][7:0];
     end
     else begin
-        Y = 0;
-        Cb = 0;
-        Cr = 0;
+        Y = 64;
+        Cb = 192;
+        Cr = 64;
     end
 end
 

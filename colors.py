@@ -10,9 +10,12 @@ data = []
  
 for y in range(HEIGHT):
     for x in range(WIDTH):
+        x %= 256
+        y %= 256
+
         yv = 127
-        cb = 0#x % 256
-        cr = x % 230 + 10 
+        cb = x
+        cr = y
         data.extend([yv, cb, cr])
  
 image = Image.frombytes('YCbCr', (WIDTH, HEIGHT), bytes(data))

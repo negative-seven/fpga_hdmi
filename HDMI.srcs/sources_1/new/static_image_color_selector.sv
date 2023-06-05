@@ -26,7 +26,6 @@ assign Y = image[position][23:16];
 assign Cb = image[position][15:8];
 assign Cr = image[position][7:0];
 
-// TODO this is now unsynchronized with syncs, to be fixed
 always @(posedge clk) begin
     position <= (x / scale_factor) + image_width * (y / scale_factor);
 end

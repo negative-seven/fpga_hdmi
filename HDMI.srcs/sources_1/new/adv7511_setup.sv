@@ -13,7 +13,7 @@ module adv7511_setup #(parameter clk_div=1000) (
 
 // settings
 
-const enum logic [0:0] {InterfaceModeDVI = 0, InterfaceModeHDMI = 1}
+const enum {InterfaceModeDVI = 0, InterfaceModeHDMI = 1}
     INTERFACE_MODE = InterfaceModeHDMI;
 
 // Input IDs:
@@ -26,24 +26,24 @@ const enum logic [0:0] {InterfaceModeDVI = 0, InterfaceModeHDMI = 1}
 // 0110 = 8, 10, 12 bit YCbCr 4:2:2 (DDR with separate syncs)
 // 0111 = 8, 10, 12 bit YCbCr 4:2:2 (DDR separate syncs)
 // 1000 = 8, 10, 12 bit YCbCr 4:2:2 (DDR embedded syncs)
-const logic [3:0] INPUT_ID = 'b0001;
+localparam INPUT_ID = 'b0001;
 
-const enum logic [1:0] {InputStyle2 = 'b01, InputStyle1 = 'b10, InputStyle3 = 'b11}
+const enum {InputStyle2 = 'b01, InputStyle1 = 'b10, InputStyle3 = 'b11}
     INPUT_STYLE = InputStyle3;
 
-const enum logic [1:0] {InputVideoEvenlyDistributed = 'b00, InputVideoRightJustified = 'b01, InputVideoLeftJustified = 'b10}
-    INPUT_VIDEO_JUSTIFICATION = InputVideoEvenlyDistributed;
+const enum {InputVideoEvenlyDistributed = 'b00, InputVideoRightJustified = 'b01, InputVideoLeftJustified = 'b10}
+    INPUT_VIDEO_JUSTIFICATION = InputVideoRightJustified;
 
-const enum logic [1:0] {InputColorDepth12Bit = 'b10, InputColorDepth10Bit = 'b01, InputColorDepth8Bit = 'b11}
+const enum {InputColorDepth12Bit = 'b10, InputColorDepth10Bit = 'b01, InputColorDepth8Bit = 'b11}
     INPUT_COLOR_DEPTH = InputColorDepth8Bit;
 
-const enum logic [0:0] {InputAspectRatio4_3 = 0, InputAspectRatio16_9 = 1}
+const enum {InputAspectRatio4_3 = 0, InputAspectRatio16_9 = 1}
     INPUT_ASPECT_RATIO = InputAspectRatio4_3;
 
-const enum logic [0:0] {InterpolationStyleZeroOrder = 0, InterpolationStyleFirstOrder = 1}
+const enum {InterpolationStyleZeroOrder = 0, InterpolationStyleFirstOrder = 1}
     INTERPOLATION_STYLE = InterpolationStyleFirstOrder;
 
-const enum logic [2:0] {
+const enum {
     InputVideoClockDelayNegative1200ns = 'b000,
     InputVideoClockDelayNegative800ns = 'b001,
     InputVideoClockDelayNegative400ns = 'b010,
@@ -55,13 +55,13 @@ const enum logic [2:0] {
 }
     INPUT_VIDEO_CLOCK_DELAY = InputVideoClockDelay1600ns;
 
-const enum logic [0:0] {OutputFormat4_4_4 = 0, OutputFormat4_2_2 = 1}
-    OUTPUT_FORMAT = OutputFormat4_2_2;
+const enum {OutputFormat4_4_4 = 0, OutputFormat4_2_2 = 1}
+    OUTPUT_FORMAT = OutputFormat4_4_4;
 
-const enum logic [0:0] {OutputColorSpaceRGB = 0, OutputColorSpaceYCbCr = 1}
+const enum {OutputColorSpaceRGB = 0, OutputColorSpaceYCbCr = 1}
     OUTPUT_COLOR_SPACE = OutputColorSpaceRGB;
 
-const logic COLOR_SPACE_CONVERTER_ENABLED = 1;
+localparam COLOR_SPACE_CONVERTER_ENABLED = 1;
 
 // end of settings
 

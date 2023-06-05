@@ -27,7 +27,8 @@ wire [7:0] Y, Cb, Cr;
 logic [7:0] data_Y;
 logic [7:0] data_CbCr;
 
-assign data = {data_Y, data_CbCr};
+assign data[15:8] = data_Y;
+assign data[7:0] = data_CbCr;
 
 always @(posedge clk, posedge rst) begin
     if (rst)
@@ -36,13 +37,14 @@ always @(posedge clk, posedge rst) begin
         functioning <= 1;
 end
 
-sync_generator #(.hdata(image_width), .vdata(image_height)) sync_generator(
+sync_generator #(.hdata(screen_width), .vdata(screen_height)) sync_generator(
     .clk(clk), .rst(rst), .enabled(functioning),
     .x(x), .y(y), .de(gen_de), .hsync(gen_hsync), .vsync(gen_vsync)
 );
 
-bouncing_image_color_selector #(
-    .screen_width(screen_width), .screen_height(screen_height),
+static_image_color_selector #(
+    .scale_factor(4),
+    // .screen_width(screen_width), .screen_height(screen_height),
     .image_width(image_width), .image_height(image_height)
 ) color_selector(
     .clk(clk), .rst(rst),
@@ -50,11 +52,13 @@ bouncing_image_color_selector #(
     .Y(Y), .Cb(Cb), .Cr(Cr)
 );
 
-wire oddPixel = x[0];
+logic oddPixel = x[0];
 
 always @(posedge clk) begin
     data_Y <= Y;
     data_CbCr <= !oddPixel ? Cb : Cr;
+
+    oddPixel <= x[0];
 
     de <= gen_de;
     hsync <= gen_hsync;
