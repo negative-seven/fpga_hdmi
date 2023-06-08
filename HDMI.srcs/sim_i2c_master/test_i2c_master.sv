@@ -1,24 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 04/28/2023 12:55:20 PM
-// Design Name: 
-// Module Name: tb
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module test_i2c_master;
 
@@ -27,15 +7,18 @@ logic rst;
 
 logic scl;
 tri1 sda;
-logic busy;
+
+pullup(sda);
+
 
 logic rw;
 logic [7:0] data_address;
 logic [7:0] wdata;
 logic [7:0] rdata;
 logic wvalid;
+logic busy;
 
-iic_avd7511_master #(.clk_div(20)) iic_master (
+i2c_avd7511_master #(.clk_div(20)) i2c_master (
     .clk(clk),
     .rst(rst),
     .scl(scl),
@@ -47,7 +30,10 @@ iic_avd7511_master #(.clk_div(20)) iic_master (
     .rdata(rdata),
     .rvalid(rvalid),
     .busy(busy)
-    );
+);
+
+logic [7:0] data_to_read;
+i2c_slave i2c_slave(.scl(scl), .sda(sda), .dummy_data(data_to_read));
 
 initial begin
     clk = 0;
@@ -81,29 +67,29 @@ task write(input [7:0] address, input [7:0] data);
     @(posedge clk);
     wvalid = 0;
     
-    // receive slave address with write
-    repeat(9) @(posedge scl);
+//    // receive slave address with write
+//    repeat(9) @(posedge scl);
     
-    // slave address ack
-    force sda = 0;
-    @(negedge scl);
-    release sda;
+//    // slave address ack
+//    force sda = 0;
+//    @(negedge scl);
+//    release sda;
     
-    // receive data address
-    repeat(9) @(posedge scl);
+//    // receive data address
+//    repeat(9) @(posedge scl);
     
-    // data address ack
-    force sda = 0;
-    @(negedge scl);
-    release sda;
+//    // data address ack
+//    force sda = 0;
+//    @(negedge scl);
+//    release sda;
     
-    // receive data
-    repeat(9) @(posedge scl);
+//    // receive data
+//    repeat(9) @(posedge scl);
     
-    // data ack
-    force sda = 0;
-    @(negedge scl);
-    release sda;
+//    // data ack
+//    force sda = 0;
+//    @(negedge scl);
+//    release sda;
     
     @(negedge busy);
 endtask
