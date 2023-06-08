@@ -5,7 +5,7 @@
 // 
 // Create Date: 04/28/2023 12:15:04 PM
 // Design Name: 
-// Module Name: iic_avd7511_master
+// Module Name: i2c_avd7511_master
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module iic_avd7511_master #(parameter clk_div=1000) (
+module i2c_avd7511_master #(parameter clk_div=1000) (
     input clk,
     input rst,
     output scl,

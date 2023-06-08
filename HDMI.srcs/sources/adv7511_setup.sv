@@ -124,7 +124,7 @@ logic [7:0] rdata;
 logic rvalid;
 logic busy;
 
-iic_avd7511_master #(clk_div) master (
+i2c_avd7511_master #(clk_div) i2c_master (
     .clk(clk), .rst(rst),
     .scl(scl), .sda(sda),
     .rw(rw), .data_address(data_address), .wdata(wdata), .wvalid(wvalid), .rdata(rdata), .rvalid(rvalid), .busy(busy)
