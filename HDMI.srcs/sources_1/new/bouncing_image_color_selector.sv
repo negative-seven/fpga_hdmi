@@ -34,8 +34,7 @@ generate
     for (i = 0; i < image_height; i++)
         assign mul_by_image_width_table[i] = i * image_width;
 endgenerate
-
-// TODO: fix undesirable delays    
+  
 always @(posedge clk, posedge rst) begin
     if (rst) begin
         image_x <= 0;
@@ -58,10 +57,12 @@ always @(posedge clk, posedge rst) begin
             else if (!moving_down && image_y <= 1)
                 moving_down <= 1;
         end
-        
-        // using direct multiplication is too slow for timing constraints; use lookup table instead
-        position <= mul_by_image_width_table[y - image_y] + (x - image_x);
-    end
+   end
+end
+
+always @(posedge clk, posedge rst) begin     
+    // using direct multiplication is too slow for timing constraints; use lookup table instead
+    position <= mul_by_image_width_table[y - image_y] + (x - image_x);
 end
 
 always @* begin

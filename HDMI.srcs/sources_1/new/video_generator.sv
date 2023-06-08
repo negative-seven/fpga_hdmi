@@ -42,11 +42,19 @@ sync_generator #(.hdata(screen_width), .vdata(screen_height)) sync_generator(
     .x(x), .y(y), .de(gen_de), .hsync(gen_hsync), .vsync(gen_vsync)
 );
 
-static_image_color_selector #(
-    .scale_factor(4),
-    // .screen_width(screen_width), .screen_height(screen_height),
+// static_image_color_selector #(
+//     .scale_factor(4),
+//     .image_width(image_width), .image_height(image_height)
+// ) static_color_selector(
+//     .clk(clk), .rst(rst),
+//     .x(x), .y(y),
+//     .Y(Y), .Cb(Cb), .Cr(Cr)
+// );
+
+bouncing_image_color_selector #(
+    .screen_width(screen_width), .screen_height(screen_height),
     .image_width(image_width), .image_height(image_height)
-) color_selector(
+) bouncing_color_selector(
     .clk(clk), .rst(rst),
     .x(x), .y(y),
     .Y(Y), .Cb(Cb), .Cr(Cr)
