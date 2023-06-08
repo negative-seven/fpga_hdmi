@@ -48,7 +48,7 @@ localparam vtotal = vfrontporch + vsync_len + vbackporch + vdata;
 logic [$clog2(htotal)-1:0] hcounter;
 logic [$clog2(vtotal)-1:0] vcounter;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if (rst) 
         hcounter <= 0;
     else if (hcounter == htotal - 1)
@@ -57,7 +57,7 @@ always @(posedge clk, posedge rst) begin
         hcounter <= hcounter + 1;
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if (rst) 
         vcounter <= 0;
     else if (vcounter == vtotal - 1)
@@ -72,7 +72,7 @@ wire vactive = vcounter >= (vtotal - vdata);
 assign x = hactive ? hcounter - (htotal - hdata) : 0;
 assign y = vactive ? vcounter - (vtotal - vdata) : 0;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if (rst) begin
         de <= 0;
         hsync <= 0;

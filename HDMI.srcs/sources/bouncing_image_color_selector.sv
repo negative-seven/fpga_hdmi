@@ -17,8 +17,8 @@ module bouncing_image_color_selector #(parameter
 
 localparam image_size = image_width * image_height;
 
-logic [11:0] image_x;
-logic [11:0] image_y;
+logic [11:0] image_x, x2;
+logic [11:0] image_y, y2;
 logic moving_right;
 logic moving_down;
 
@@ -35,7 +35,7 @@ generate
         assign mul_by_image_width_table[i] = i * image_width;
 endgenerate
   
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if (rst) begin
         image_x <= 0;
         image_y <= 0;
@@ -60,7 +60,7 @@ always @(posedge clk, posedge rst) begin
    end
 end
 
-always @(posedge clk, posedge rst) begin     
+always @(posedge clk) begin    
     // using direct multiplication is too slow for timing constraints; use lookup table instead
     position <= mul_by_image_width_table[y - image_y] + (x - image_x);
 end
