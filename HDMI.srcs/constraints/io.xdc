@@ -1,7 +1,6 @@
 set_property PACKAGE_PIN Y9 [get_ports {clk}];  # "GCLK"
 
 set_property PACKAGE_PIN P16 [get_ports {rst}];  # "BTNC"
-set_property PACKAGE_PIN R16 [get_ports {start}];  # "BTND"
 
 # ----------------------------------------------------------------------------
 # HDMI Output - Bank 33

@@ -3,7 +3,6 @@
 module top #(parameter clkdiv = 1000) (
     input clk,
     input rst,
-    input start,
 
     output hd_scl,
     inout hd_sda,
@@ -19,7 +18,7 @@ logic setup_finished;
 
 adv7511_setup #(.clk_div(clkdiv)) adv7511_setup(
     .clk(clk), .rst(rst),
-    .start(start), .finished(setup_finished),
+    .finished(setup_finished),
     .scl(hd_scl), .sda(hd_sda)
 );
 

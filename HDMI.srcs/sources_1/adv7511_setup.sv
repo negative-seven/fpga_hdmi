@@ -4,7 +4,6 @@ module adv7511_setup #(parameter clk_div=1000) (
     input clk,
     input rst,
 
-    input start,
     output logic finished,
 
     output scl,
@@ -130,17 +129,20 @@ i2c_avd7511_master #(clk_div) i2c_master (
     .rw(rw), .data_address(data_address), .wdata(wdata), .wvalid(wvalid), .rdata(rdata), .rvalid(rvalid), .busy(busy)
 );
 
-typedef enum { Idle, StartTransaction, WaitForEndTransaction, Stop } states;
+typedef enum { InitialDelay, StartTransaction, WaitForEndTransaction, Stop } states;
 states state;
 states next_state;
+
+localparam initial_delay_counter_max = 20000000;
+logic [$clog2(initial_delay_counter_max) - 1:0] initial_delay_counter;
 
 logic [$clog2($size(transactions)) - 1:0] transaction_index;
 logic [7:0] mask;
 
 always @* begin
-    next_state = Idle;
+    next_state = InitialDelay;
     case (state)
-        Idle: next_state = start ? StartTransaction : Idle;
+        InitialDelay: next_state = initial_delay_counter == 0 ? StartTransaction : InitialDelay;
         StartTransaction: next_state = WaitForEndTransaction;
         WaitForEndTransaction: 
             if (busy)
@@ -155,7 +157,8 @@ transaction curr_trx = transactions[transaction_index];
 
 always @(posedge clk, posedge rst) begin
     if (rst) begin
-        state <= Idle;
+        state <= InitialDelay;
+        initial_delay_counter <= initial_delay_counter_max;
         transaction_index <= 0;
         wvalid <= 0;
         finished <= 0;
@@ -163,6 +166,7 @@ always @(posedge clk, posedge rst) begin
     else begin
         state <= next_state;
         case (state)
+            InitialDelay: initial_delay_counter <= initial_delay_counter - 1;
             StartTransaction: begin
                 case (curr_trx.operation)
                     Read: begin
