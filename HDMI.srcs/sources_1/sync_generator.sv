@@ -1,24 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 05/23/2023 03:22:07 PM
-// Design Name: 
-// Module Name: sync_generator
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module sync_generator #(parameter 
     hdata = 800,
@@ -42,8 +22,8 @@ localparam vfrontporch = 3;
 localparam vsync_len = 7;
 localparam vbackporch = 10;
 
-localparam htotal = hfrontporch + hsync_len + hbackporch + hdata;
-localparam vtotal = vfrontporch + vsync_len + vbackporch + vdata;
+localparam htotal = hdata + hfrontporch + hsync_len + hbackporch;
+localparam vtotal = vdata + vfrontporch + vsync_len + vbackporch;
 
 logic [$clog2(htotal)-1:0] hcounter;
 logic [$clog2(vtotal)-1:0] vcounter;
@@ -66,11 +46,11 @@ always @(posedge clk) begin
         vcounter <= vcounter + 1;
 end
 
-wire hactive = hcounter >= (htotal - hdata);
-wire vactive = vcounter >= (vtotal - vdata);
+wire hactive = hcounter < hdata;
+wire vactive = vcounter < vdata;
 
-assign x = hactive ? hcounter - (htotal - hdata) : 0;
-assign y = vactive ? vcounter - (vtotal - vdata) : 0;
+assign x = hcounter;
+assign y = vcounter;
 
 always @(posedge clk) begin
     if (rst) begin
@@ -80,8 +60,8 @@ always @(posedge clk) begin
     end
     else begin
         de <= hactive && vactive;
-        hsync <= (hcounter >= hfrontporch && hcounter < hfrontporch + hsync_len);
-        vsync <= (vcounter >= vfrontporch && vcounter < vfrontporch + vsync_len);
+        hsync <= (hcounter >= hdata + hfrontporch && hcounter < hdata + hfrontporch + hsync_len);
+        vsync <= (vcounter >= vdata + vfrontporch && vcounter < vdata + vfrontporch + vsync_len);
     end
 end
 

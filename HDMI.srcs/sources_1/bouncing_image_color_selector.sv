@@ -1,10 +1,10 @@
 `timescale 1ns / 1ps
 
 module bouncing_image_color_selector #(parameter
-    screen_width = 800,
-    screen_height = 480,
-    image_width = 200,
-    image_height = 120
+    screen_width = 0,
+    screen_height = 0,
+    image_width = 0,
+    image_height = 0
 ) (
     input clk,
     input rst,
@@ -43,7 +43,7 @@ always @(posedge clk) begin
         moving_down <= 1;
     end
     else begin
-        if (x == 1 && y == 1) begin // hack: update image position and velocity at end of read
+        if (x == screen_width - 1 && y == screen_height - 1) begin // update image position and velocity after final pixel
             image_x <= image_x + (moving_right ? 1 : -1);
             image_y <= image_y + (moving_down ? 1 : -1);
             

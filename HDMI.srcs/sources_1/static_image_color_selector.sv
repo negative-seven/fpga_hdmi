@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 
 module static_image_color_selector #(parameter
-    image_width = 200,
-    image_height = 120,
-    scale_factor = 4
+    image_width = 0,
+    image_height = 0,
+    scale_factor = 1
 ) (
     input clk,
     input rst,
