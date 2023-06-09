@@ -14,13 +14,13 @@ module sync_generator #(parameter
     output logic vsync
 );
 
-localparam hfrontporch = 24;
-localparam hsync_len = 72;
-localparam hbackporch = 96;
+localparam hfrontporch = 8;
+localparam hsync_len = 32;
+localparam hbackporch = 40;
 
-localparam vfrontporch = 3;
-localparam vsync_len = 7;
-localparam vbackporch = 10;
+localparam vfrontporch = 12;
+localparam vsync_len = 8;
+localparam vbackporch = 6;
 
 localparam htotal = hdata + hfrontporch + hsync_len + hbackporch;
 localparam vtotal = vdata + vfrontporch + vsync_len + vbackporch;

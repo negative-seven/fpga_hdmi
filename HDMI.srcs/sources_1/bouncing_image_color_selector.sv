@@ -17,8 +17,8 @@ module bouncing_image_color_selector #(parameter
 
 localparam image_size = image_width * image_height;
 
-logic [11:0] image_x, x2;
-logic [11:0] image_y, y2;
+logic [11:0] image_x;
+logic [11:0] image_y;
 logic moving_right;
 logic moving_down;
 
@@ -41,6 +41,7 @@ always @(posedge clk) begin
         image_y <= 0;
         moving_right <= 1;
         moving_down <= 1;
+        position <= 0;
     end
     else begin
         if (x == screen_width - 1 && y == screen_height - 1) begin // update image position and velocity after final pixel
@@ -57,12 +58,10 @@ always @(posedge clk) begin
             else if (!moving_down && image_y <= 1)
                 moving_down <= 1;
         end
-   end
-end
-
-always @(posedge clk) begin    
-    // using direct multiplication is too slow for timing constraints; use lookup table instead
-    position <= mul_by_image_width_table[y - image_y] + (x - image_x);
+        
+        // using direct multiplication is too slow for timing constraints; use lookup table instead
+        position <= mul_by_image_width_table[y - image_y] + (x - image_x);
+    end
 end
 
 always @* begin

@@ -1,24 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 04/28/2023 12:15:04 PM
-// Design Name: 
-// Module Name: top
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module top #(parameter clkdiv = 1000) (
     input clk,
@@ -43,8 +23,10 @@ adv7511_setup #(.clk_div(clkdiv)) adv7511_setup(
     .scl(hd_scl), .sda(hd_sda)
 );
 
+clk_wiz clock_wizard (.reset(rst), .clk_in1(clk), .clk_out1(video_clk), .locked(video_clk_locked));
+
 video_generator video_generator(
-    .clk(clk), .rst(rst), .start(setup_finished),
+    .clk(video_clk), .rst(rst), .start(setup_finished && video_clk_locked),
     .data_clk(hd_clk), .data(hd_data), .de(hd_de), .hsync(hd_hsync), .vsync(hd_vsync)
 );
 

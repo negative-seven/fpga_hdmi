@@ -13,8 +13,8 @@ module video_generator (
 
 assign data_clk = clk;
 
-localparam screen_width = 800;
-localparam screen_height = 480;
+localparam screen_width = 1600;
+localparam screen_height = 900;
 localparam image_width = 200;
 localparam image_height = 120;
 
