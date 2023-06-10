@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1500000fs"></ZoomStartTime>
-      <ZoomEndTime time="2920001fs"></ZoomEndTime>
-      <Cursor1Time time="3000000fs"></Cursor1Time>
+      <ZoomStartTime time="976367746fs"></ZoomStartTime>
+      <ZoomEndTime time="1130767747fs"></ZoomEndTime>
+      <Cursor1Time time="1086267746fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="200"></NameColumnWidth>
-      <ValueColumnWidth column_width="89"></ValueColumnWidth>
+      <ValueColumnWidth column_width="85"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="18" />
+   <WVObjectSize size="10" />
    <wvobject type="logic" fp_name="/test_top/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -28,74 +28,36 @@
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/test_top/start">
-      <obj_property name="ElementShortName">start</obj_property>
-      <obj_property name="ObjectShortName">start</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/test_top/leds">
-      <obj_property name="ElementShortName">leds[7:0]</obj_property>
-      <obj_property name="ObjectShortName">leds[7:0]</obj_property>
+   <wvobject type="logic" fp_name="/test_top/hd_scl">
+      <obj_property name="ElementShortName">hd_scl</obj_property>
+      <obj_property name="ObjectShortName">hd_scl</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/test_top/hd_sda">
       <obj_property name="ElementShortName">hd_sda</obj_property>
       <obj_property name="ObjectShortName">hd_sda</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/test_top/hd_scl">
-      <obj_property name="ElementShortName">hd_scl</obj_property>
-      <obj_property name="ObjectShortName">hd_scl</obj_property>
+   <wvobject type="logic" fp_name="/test_top/hd_clk">
+      <obj_property name="ElementShortName">hd_clk</obj_property>
+      <obj_property name="ObjectShortName">hd_clk</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/test_top/top_instance/state">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">state[31:0]</obj_property>
-      <obj_property name="ObjectShortName">state[31:0]</obj_property>
-      <obj_property name="label">top_state</obj_property>
+   <wvobject type="logic" fp_name="/test_top/hd_de">
+      <obj_property name="ElementShortName">hd_de</obj_property>
+      <obj_property name="ObjectShortName">hd_de</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/test_top/top_instance/master/state">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">state[31:0]</obj_property>
-      <obj_property name="ObjectShortName">state[31:0]</obj_property>
-      <obj_property name="label">i2c_master_state</obj_property>
+   <wvobject type="logic" fp_name="/test_top/hd_hsync">
+      <obj_property name="ElementShortName">hd_hsync</obj_property>
+      <obj_property name="ObjectShortName">hd_hsync</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/test_top/top_instance/master/next_state">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">next_state[31:0]</obj_property>
-      <obj_property name="ObjectShortName">next_state[31:0]</obj_property>
-      <obj_property name="label">i2c_master_next_state</obj_property>
+   <wvobject type="logic" fp_name="/test_top/hd_vsync">
+      <obj_property name="ElementShortName">hd_vsync</obj_property>
+      <obj_property name="ObjectShortName">hd_vsync</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/test_top/top_instance/rvalid">
-      <obj_property name="ElementShortName">rvalid</obj_property>
-      <obj_property name="ObjectShortName">rvalid</obj_property>
+   <wvobject type="array" fp_name="/test_top/hd_data">
+      <obj_property name="ElementShortName">hd_data[15:0]</obj_property>
+      <obj_property name="ObjectShortName">hd_data[15:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/test_top/top_instance/busy">
-      <obj_property name="ElementShortName">busy</obj_property>
-      <obj_property name="ObjectShortName">busy</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/test_top/top_instance/master/wvalid">
-      <obj_property name="ElementShortName">wvalid</obj_property>
-      <obj_property name="ObjectShortName">wvalid</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/test_top/top_instance/master/latched_wvalid">
-      <obj_property name="ElementShortName">latched_wvalid</obj_property>
-      <obj_property name="ObjectShortName">latched_wvalid</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/test_top/top_instance/master/scl_0">
-      <obj_property name="ElementShortName">scl_0</obj_property>
-      <obj_property name="ObjectShortName">scl_0</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/test_top/top_instance/master/latched_sda">
-      <obj_property name="ElementShortName">latched_sda</obj_property>
-      <obj_property name="ObjectShortName">latched_sda</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/test_top/top_instance/rw">
-      <obj_property name="ElementShortName">rw</obj_property>
-      <obj_property name="ObjectShortName">rw</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/test_top/top_instance/master/latched_rw">
-      <obj_property name="ElementShortName">latched_rw</obj_property>
-      <obj_property name="ObjectShortName">latched_rw</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/test_top/top_instance/master/second_starting_frame">
-      <obj_property name="ElementShortName">second_starting_frame</obj_property>
-      <obj_property name="ObjectShortName">second_starting_frame</obj_property>
+   <wvobject type="array" fp_name="/test_top/top_instance/adv7511_setup/transaction_index">
+      <obj_property name="ElementShortName">transaction_index[4:0]</obj_property>
+      <obj_property name="ObjectShortName">transaction_index[4:0]</obj_property>
    </wvobject>
 </wave_config>

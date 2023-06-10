@@ -15,7 +15,7 @@ logic rw;
 
 initial begin
     forever @(negedge sda)
-        if (scl) begin
+        #1 if (scl) begin
             state = ReceiveSlaveAddr;
             counter = 0; 
         end
@@ -28,7 +28,8 @@ initial begin
 end
 
 initial begin
-    forever @(posedge scl) begin
+    forever @(negedge scl) begin
+        sda_driven = 0;
         case (state)
             ReceiveSlaveAddr:
                 if (counter == 7)
@@ -36,23 +37,33 @@ initial begin
             ReceiveRW: begin
                 rw = sda;
                 state = SendSlaveAddresAck;
+                sda_driven = 1;
             end
             SendSlaveAddresAck: begin
-                sda_driven = 1;
                 state = rw ? SendData : ReceiveData;
                 counter = 0;
             end
             ReceiveData:
-                if (counter == 8)
+                if (counter == 8) begin
                     state = SendDataAck;
+                    sda_driven = 1;
+                end
+            SendDataAck: begin
+                state = ReceiveData;
+                counter = 0;
+            end
+            SendData:
+                if (counter == 8)
+                    state = ReceiveDataAck;
+                else if (!dummy_data[7 - counter])
+                    sda_driven = 1;
         endcase
     end
 end
 
 initial begin
-    forever @(negedge scl) begin
+    forever @(posedge scl) begin
         counter++;
-        sda_driven <= 0;
     end
 end
     

@@ -58,6 +58,8 @@ clock_divider #(.div(clk_div)) divider (
     .clk(clk), .rst(rst),
     .slow_clk(slow_clk), .impulse_0(scl_0), .impulse_1(scl_1), .impulse_n(scl_n), .impulse_p());
 
+// sda have external pullup so this should be something like to not create H---L without resistor wire
+// assign sda = !sda_driven ? 'z : 0
 assign sda = sda_z ? 'z : sda_out;
 assign scl = scl_high ? 1 : slow_clk;
 

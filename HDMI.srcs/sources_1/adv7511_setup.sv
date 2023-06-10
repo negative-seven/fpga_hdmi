@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module adv7511_setup #(parameter clk_div=1000) (
+module adv7511_setup #(parameter clk_div=1000, ms_wait_adv = 250) (
     input clk,
     input rst,
 
@@ -133,7 +133,8 @@ typedef enum { InitialDelay, StartTransaction, WaitForEndTransaction, Stop } sta
 states state;
 states next_state;
 
-localparam initial_delay_counter_max = 20000000;
+localparam ticksIn1msFor100MHz = 100_000;
+localparam initial_delay_counter_max = ms_wait_adv * ticksIn1msFor100MHz;
 logic [$clog2(initial_delay_counter_max) - 1:0] initial_delay_counter;
 
 logic [$clog2($size(transactions)) - 1:0] transaction_index;
@@ -153,7 +154,7 @@ always @* begin
     endcase
 end
 
-transaction curr_trx = transactions[transaction_index];
+wire transaction curr_trx = transactions[transaction_index];
 
 always @(posedge clk, posedge rst) begin
     if (rst) begin
@@ -166,7 +167,8 @@ always @(posedge clk, posedge rst) begin
     else begin
         state <= next_state;
         case (state)
-            InitialDelay: initial_delay_counter <= initial_delay_counter - 1;
+            InitialDelay:
+                initial_delay_counter <= initial_delay_counter - 1;
             StartTransaction: begin
                 case (curr_trx.operation)
                     Read: begin

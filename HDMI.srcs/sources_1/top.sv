@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module top #(parameter clkdiv = 1000) (
+module top #(parameter clkdiv = 1000, ms_wait_adv = 250) (
     input clk,
     input rst,
 
@@ -16,7 +16,7 @@ module top #(parameter clkdiv = 1000) (
 
 logic setup_finished;
 
-adv7511_setup #(.clk_div(clkdiv)) adv7511_setup(
+adv7511_setup #(.clk_div(clkdiv), .ms_wait_adv(ms_wait_adv)) adv7511_setup(
     .clk(clk), .rst(rst),
     .finished(setup_finished),
     .scl(hd_scl), .sda(hd_sda)
