@@ -78,43 +78,7 @@ task read(input [7:0] address, input [7:0] data);
     wvalid = 1;
     @(posedge clk);
     wvalid = 0;
-    
-    // // receive slave address with write
-    // repeat(9) @(posedge scl);
-    
-    // // slave address ack
-    // force sda = 0;
-    // @(negedge scl);
-    // release sda;
-    
-    // // receive data address
-    // repeat(9) @(posedge scl);
-    
-    // // data address ack
-    // force sda = 0;
-    // @(negedge scl);
-    // release sda;
-    
-    // // receive second start
-    // @(posedge scl);
-    
-    // // receive slave address with read
-    // repeat(9) @(posedge scl);
-    
-    // // slave address ack
-    // force sda = 0;
-    // @(negedge scl);
-    // release sda;
-    
-    // // send data;
-    // for (i = 0; i < 8; ++i) begin
-    //     @(posedge scl) force sda = data[7-i];
-    //     @(negedge scl) release sda;        
-    // end
-
-    // // receive data nack
-    // @(posedge scl);
-    
+        
     @(negedge busy);
 endtask
 

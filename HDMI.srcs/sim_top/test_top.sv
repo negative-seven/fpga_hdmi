@@ -33,17 +33,6 @@ initial begin
     rst = 1;
     repeat(5) @(posedge clk);
     rst = 0;
-    
-    // respond_to_write();
-    // respond_to_write();
-    // respond_to_write();
-    // respond_to_write();
-    // respond_to_write();
-    // respond_to_write();
-    // respond_to_write();
-    // respond_to_write();
-    // respond_to_write();
-    // respond_to_read();
 end
 
 endmodule
